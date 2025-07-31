@@ -31,7 +31,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const query = `${genre && genre !== "指定なし" ? genre : ""} ${location}`.trim();
+  const defaultQuery = "飲食店"; // "飲食店" means restaurants in Japanese
+  const query = `${genre && genre !== "指定なし" ? genre : defaultQuery} ${location}`.trim();
 
   const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
     query
