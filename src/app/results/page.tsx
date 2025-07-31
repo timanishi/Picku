@@ -47,10 +47,13 @@ export default function ResultsPage() {
       const response = await fetch(
         `/api/restaurants?location=${location}&genre=${genre}&budget=${budget}`
       );
-      if (!response.ok) {
-        throw new Error('Failed to fetch restaurants');
-      }
       const data = await response.json();
+
+      // API側でエラーが返された場合
+      if (response.status !== 200) {
+        throw new Error(data.error || 'お店の検索に失敗しました。');
+      }
+
       setRestaurants(data);
 
       // Increment count after successful fetch

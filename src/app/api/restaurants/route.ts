@@ -41,12 +41,35 @@ export async function GET(request: Request) {
     const response = await fetch(url);
     const data = await response.json();
 
+    // ステータスに応じたエラーハンドリング
     if (data.status !== "OK") {
-      console.error("Google Places API Error:", data.error_message);
-      return NextResponse.json(
-        { error: data.error_message || "Failed to fetch data from Google Places API" },
-        { status: 500 }
-      );
+      let errorMessage = "Failed to fetch data from Google Places API";
+      let status = 500;
+
+      switch (data.status) {
+        case "ZERO_RESULTS":
+          errorMessage = "条件に合うお店が見つかりませんでした。";
+          status = 404;
+          break;
+        case "INVALID_REQUEST":
+          errorMessage = "検索条件が無効です。場所を正しく入力してください。";
+          status = 400;
+          break;
+        case "OVER_QUERY_LIMIT":
+          errorMessage = "一時的に利用が集中しています。しばらくしてから再度お試しください。";
+          status = 429;
+          break;
+        case "REQUEST_DENIED":
+          errorMessage = "APIキーが無効か、権限がありません。";
+          status = 403;
+          break;
+        default:
+          errorMessage = data.error_message || "不明なエラーが発生しました。";
+          status = 500;
+          break;
+      }
+      console.error(`Google Places API Error: ${data.status} - ${data.error_message || ''}`);
+      return NextResponse.json({ error: errorMessage }, { status });
     }
 
     const shuffledRestaurants = (data.results as Place[])
