@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 
 // APIレスポンスに合わせた型定義
 interface Restaurant {
@@ -14,7 +14,7 @@ interface Restaurant {
   photo: string; // 1枚の写真のURL
 }
 
-export default function ResultsPage() {
+function Results() {
   const searchParams = useSearchParams();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,5 +200,13 @@ export default function ResultsPage() {
         </button>
       </div>
     </main>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen flex-col items-center justify-center bg-gray-50"><p className="text-lg text-gray-700">読み込み中...</p></div>}>
+      <Results />
+    </Suspense>
   );
 }
